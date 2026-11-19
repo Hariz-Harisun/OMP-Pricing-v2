@@ -1,0 +1,32 @@
+## Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+
+## Build output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+TestResults/
+*.trx
+
+## Runtime folders (AGENTS.md)
+output/
+state/
+logs/
+
+## User secrets and environment files: never commit a credential
+secrets.json
+*.secrets.json
+.env
+.env.*
+
+## OS noise
+Thumbs.db
+.DS_Store
