@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using OmpPricing.App.Excel;
 using OmpPricing.App.Pipeline;
 using OmpPricing.App.Pricing;
+using OmpPricing.App.Providers;
 using OmpPricing.App.Rules;
 using Serilog;
 
@@ -40,6 +41,7 @@ public static class Program
         var excel = configuration.GetSection("Omp:Excel").Get<ExcelOptions>() ?? new ExcelOptions();
         var rulesFolder = ResolveRulesFolder(configuration["Omp:RulesFolder"] ?? "rules");
         var outputFolder = Path.GetFullPath(configuration["Omp:OutputFolder"] ?? "output");
+        var stateFolder = Path.GetFullPath(configuration["Omp:StateFolder"] ?? "state");
         var packagingMap = ReadPackagingMap(configuration);
 
         Log.Logger = CreateLogger();
@@ -66,12 +68,50 @@ public static class Program
             }
 
             var countries = CountryList.Load(Path.Combine(rulesFolder, "countries.txt"));
-            var pipeline = new PricingPipeline(new FakePricer(), excel, new PackagingMap(packagingMap), countries, Log.Logger);
+            var suffixes = SuffixRules.Load(Path.Combine(rulesFolder, "suffix-rules.json"));
+            var aliases = MfgAliases.Load(Path.Combine(rulesFolder, "mfg-aliases.json"));
+
+            // Loaded and validated at startup: a COO country that is not in countries.txt stops the run
+            // here instead of producing a value the dropdown would reject. Columns 15-17 and 21 are
+            // filled from these tables in Step 3.
+            var supplierTerms = SupplierTermsTable.Load(Path.Combine(rulesFolder, "supplier-terms.json"));
+            var cooRules = CooRulesTable.Load(Path.Combine(rulesFolder, "coo-rules.json"), countries);
+            Log.Information(
+                "Rules: {Countries} countries, {Suffixes} suffixes, {Aliases} manufacturer aliases, {Terms} supplier-term rows, {Coo} COO rows",
+                countries.Count,
+                suffixes.Count,
+                aliases.Count,
+                supplierTerms.Count,
+                cooRules.Count);
+
+            var providers = ProviderRegistry.FromAssembly().Build(configuration);
+            if (providers.Count == 0)
+            {
+                Log.Warning("No provider is enabled in configuration; quoteable rows will be NotFound");
+            }
+            else
+            {
+                Log.Information("Providers enabled: {Providers}", string.Join(", ", providers.Select(provider => provider.Name)));
+            }
+
+            var cachePath = Path.Combine(stateFolder, "match-cache.json");
+            var cache = MatchCache.Load(cachePath);
+
+            var pipeline = new PricingPipeline(
+                providers,
+                excel,
+                new PackagingMap(packagingMap),
+                countries,
+                new PartMatcher(suffixes, aliases),
+                cache,
+                Log.Logger);
 
             var result = await pipeline.RunAsync(
                 new FileInputSource(options.File),
                 new FolderResultSink(outputFolder),
                 CancellationToken.None);
+
+            cache.Save(cachePath);
 
             Log.Information("Data rows: {Rows}", result.LineCount);
             foreach (var (status, count) in result.StatusCounts.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
@@ -79,9 +119,19 @@ public static class Program
                 Log.Information("  {Status}: {Count}", status, count);
             }
 
-            Log.Information("Provider lookups: {Lookups}", result.LookupCount);
+            foreach (var (key, count) in result.ProviderCalls)
+            {
+                Log.Information("  provider {Provider}: {Count}", key, count);
+            }
+
+            Log.Information("Match cache: {Count} decisions in {Path}", cache.Count, cachePath);
             Log.Information("Output: {Output}", result.OutputPath);
             return 0;
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or FileNotFoundException)
+        {
+            Log.Error("{Message}", exception.Message);
+            return 1;
         }
         catch (Exception exception)
         {

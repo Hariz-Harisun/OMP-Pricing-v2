@@ -1,0 +1,14 @@
+{
+  "Products": [
+    {
+      "ManufacturerProductNumber": "BAT54CW,115",
+      "Manufacturer": { "Id": 281, "Name": "NXP USA Inc." }
+    },
+    {
+      "ManufacturerProductNumber": "BAT54CW,115",
+      "Manufacturer": { "Id": 385, "Name": "Diodes Incorporated" }
+    }
+  ],
+  "ExactMatches": [],
+  "SearchLocaleUsed": { "Site": "US", "Language": "en", "Currency": "USD" }
+}

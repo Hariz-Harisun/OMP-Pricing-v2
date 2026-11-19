@@ -1,0 +1,77 @@
+{
+  "Products": [
+    {
+      "ManufacturerProductNumber": "BLM18HE601SN1D",
+      "Manufacturer": { "Id": 490, "Name": "Murata Electronics" },
+      "QuantityAvailable": 168243,
+      "ManufacturerLeadWeeks": "24",
+      "ProductStatus": { "Status": "Active" },
+      "Ncnr": false,
+      "Discontinued": false,
+      "EndOfLife": false,
+      "Classifications": { "RohsStatus": "ROHS3 Compliant", "ReachStatus": "REACH Unaffected" },
+      "ProductVariations": [
+        {
+          "DigiKeyProductNumber": "490-5214-2-ND",
+          "PackageType": { "Id": 257, "Name": "Tape & Reel (TR)" },
+          "StandardPricing": [
+            { "BreakQuantity": 4000, "UnitPrice": 0.08825, "TotalPrice": 353.00 }
+          ],
+          "MyPricing": [],
+          "MarketPlace": false,
+          "TariffActive": true,
+          "QuantityAvailableforPackageType": 168000,
+          "MaxQuantityForDistribution": 168000,
+          "MinimumOrderQuantity": 4000,
+          "DigiReelFee": 0
+        },
+        {
+          "DigiKeyProductNumber": "490-5214-1-ND",
+          "PackageType": { "Id": 258, "Name": "Cut Tape (CT)" },
+          "StandardPricing": [
+            { "BreakQuantity": 1, "UnitPrice": 0.35, "TotalPrice": 0.35 },
+            { "BreakQuantity": 10, "UnitPrice": 0.25, "TotalPrice": 2.50 },
+            { "BreakQuantity": 25, "UnitPrice": 0.216, "TotalPrice": 5.40 },
+            { "BreakQuantity": 50, "UnitPrice": 0.1932, "TotalPrice": 9.66 },
+            { "BreakQuantity": 100, "UnitPrice": 0.1721, "TotalPrice": 17.21 },
+            { "BreakQuantity": 250, "UnitPrice": 0.14656, "TotalPrice": 36.64 },
+            { "BreakQuantity": 500, "UnitPrice": 0.12888, "TotalPrice": 64.44 },
+            { "BreakQuantity": 1000, "UnitPrice": 0.11248, "TotalPrice": 112.48 }
+          ],
+          "MyPricing": [],
+          "MarketPlace": false,
+          "TariffActive": true,
+          "QuantityAvailableforPackageType": 168243,
+          "MaxQuantityForDistribution": 168243,
+          "MinimumOrderQuantity": 1,
+          "StandardPackage": 1,
+          "DigiReelFee": 0
+        },
+        {
+          "DigiKeyProductNumber": "490-5214-6-ND",
+          "PackageType": { "Id": 259, "Name": "Digi-Reel" },
+          "StandardPricing": [
+            { "BreakQuantity": 1, "UnitPrice": 0.35, "TotalPrice": 0.35 },
+            { "BreakQuantity": 10, "UnitPrice": 0.25, "TotalPrice": 2.50 },
+            { "BreakQuantity": 25, "UnitPrice": 0.216, "TotalPrice": 5.40 },
+            { "BreakQuantity": 50, "UnitPrice": 0.1932, "TotalPrice": 9.66 },
+            { "BreakQuantity": 100, "UnitPrice": 0.1721, "TotalPrice": 17.21 },
+            { "BreakQuantity": 250, "UnitPrice": 0.14656, "TotalPrice": 36.64 },
+            { "BreakQuantity": 500, "UnitPrice": 0.12888, "TotalPrice": 64.44 },
+            { "BreakQuantity": 1000, "UnitPrice": 0.11248, "TotalPrice": 112.48 }
+          ],
+          "MyPricing": [],
+          "MarketPlace": false,
+          "TariffActive": true,
+          "QuantityAvailableforPackageType": 168243,
+          "MaxQuantityForDistribution": 168243,
+          "MinimumOrderQuantity": 1,
+          "StandardPackage": 1,
+          "DigiReelFee": 7.00
+        }
+      ]
+    }
+  ],
+  "ExactMatches": [],
+  "SearchLocaleUsed": { "Site": "US", "Language": "en", "Currency": "USD" }
+}

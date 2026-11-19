@@ -26,6 +26,7 @@
     <None Include="../samples/LT2026100009.xlsx" Link="samples/LT2026100009.xlsx" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../src/OmpPricing.App/appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../rules/**/*" LinkBase="rules" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Providers/DigiKey/fixtures/*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
