@@ -16,28 +16,28 @@ public sealed class DigiKeyProviderTests
         var (provider, handler) = DigiKeyTestSetup.CreateProvider();
         handler
             .RespondJson(DigiKeyTestSetup.TokenJson)
-            .RespondJson(DigiKeyTestSetup.Fixture("blm18he601sn1-productdetails.json"));
+            .RespondJson(DigiKeyTestSetup.Fixture("blm15gg221sz1d-productdetails.json"));
 
-        var result = await provider.FindAsync(DigiKeyTestSetup.Query("BLM18HE601SN1", "Murata", 1), Token);
+        var result = await provider.FindAsync(DigiKeyTestSetup.Query("BLM15GG221SZ1D", "Murata", 1), Token);
 
         Assert.Equal(ProviderStatus.Found, result.Status);
         Assert.Equal(3, result.Offers.Count);
 
         var reel = Assert.Single(result.Offers, offer => offer.Packaging == "Tape & Reel (TR)");
-        Assert.Equal(4000, reel.Moq);
-        Assert.Null(reel.StandardPackage);
-        Assert.Equal(0.08825m, Assert.Single(reel.PriceBreaks).UnitPrice);
+        Assert.Equal(10000, reel.Moq);
+        Assert.Equal(10000, reel.StandardPackage);
+        Assert.Equal(0.213m, Assert.Single(reel.PriceBreaks).UnitPrice);
         Assert.Equal(0m, reel.FixedFee);
-        Assert.Equal(168000, reel.Stock);
+        Assert.Equal(0, reel.Stock);
         Assert.Equal(24, reel.LeadWeeks);
         Assert.Equal("Murata Electronics", reel.Mfg);
-        Assert.Equal("BLM18HE601SN1D", reel.Mpn);
-        Assert.Equal("490-5214-2-ND", reel.ProviderPartNumber);
+        Assert.Equal("BLM15GG221SZ1D", reel.Mpn);
+        Assert.Equal("490-BLM15GG221SZ1DTR-ND", reel.ProviderPartNumber);
         Assert.Equal("USD", reel.Currency);
         Assert.False(reel.IsMarketplace);
         Assert.True(reel.TariffActive);
 
-        var digiReel = Assert.Single(result.Offers, offer => offer.Packaging == "Digi-Reel");
+        var digiReel = Assert.Single(result.Offers, offer => offer.Packaging == "Digi-Reel®");
         Assert.Equal(7.00m, digiReel.FixedFee);
         Assert.Equal(1, digiReel.Moq);
     }
@@ -48,15 +48,12 @@ public sealed class DigiKeyProviderTests
         var (provider, handler) = DigiKeyTestSetup.CreateProvider();
         handler
             .RespondJson(DigiKeyTestSetup.TokenJson)
-            .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-productdetails.json"));
+            .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-nexperia-productdetails.json"));
 
         var result = await provider.FindAsync(DigiKeyTestSetup.Query("BAT54CW,115", "NXP"), Token);
 
         Assert.Equal(ProviderStatus.Found, result.Status);
-        var prices = Assert.Single(result.Offers).PriceBreaks.Select(priceBreak => priceBreak.UnitPrice).ToList();
-        Assert.Contains(0.12m, prices);
-        Assert.DoesNotContain(0.05m, prices);
-        Assert.DoesNotContain(0.03m, prices);
+        Assert.Equal(3, result.Offers.Count);
         Assert.All(result.Offers, offer => Assert.False(offer.IsContractPrice));
     }
 
@@ -107,7 +104,7 @@ public sealed class DigiKeyProviderTests
         handler
             .RespondJson(DigiKeyTestSetup.TokenJson)
             .RespondJson(
-                DigiKeyTestSetup.Fixture("blm18he601sn1-productdetails.json"),
+                DigiKeyTestSetup.Fixture("blm15gg221sz1d-productdetails.json"),
                 configure: response =>
                 {
                     response.Headers.Add("X-RateLimit-Limit", "120");

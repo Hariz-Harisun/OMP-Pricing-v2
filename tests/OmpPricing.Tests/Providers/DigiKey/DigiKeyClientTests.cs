@@ -16,7 +16,7 @@ public sealed class DigiKeyClientTests
         var (client, handler) = DigiKeyTestSetup.CreateClient();
         handler
             .RespondJson(DigiKeyTestSetup.TokenJson)
-            .RespondJson(DigiKeyTestSetup.Fixture("blm18he601sn1-productdetails.json"));
+            .RespondJson(DigiKeyTestSetup.Fixture("blm15gg221sz1d-productdetails.json"));
 
         var result = await client.GetProductDetailsAsync(
             DigiKeyTestSetup.Query("BLM18HE601SN1", "Murata"),
@@ -37,7 +37,7 @@ public sealed class DigiKeyClientTests
     {
         var time = new ManualTimeProvider();
         var (client, handler) = DigiKeyTestSetup.CreateClient(time);
-        var fixture = DigiKeyTestSetup.Fixture("blm18he601sn1-productdetails.json");
+        var fixture = DigiKeyTestSetup.Fixture("blm15gg221sz1d-productdetails.json");
 
         handler
             .RespondJson(DigiKeyTestSetup.TokenJson)
@@ -65,7 +65,7 @@ public sealed class DigiKeyClientTests
         var (client, handler) = DigiKeyTestSetup.CreateClient();
         handler
             .RespondJson(DigiKeyTestSetup.TokenJson)
-            .RespondJson(DigiKeyTestSetup.Fixture("blm18he601sn1-productdetails.json"));
+            .RespondJson(DigiKeyTestSetup.Fixture("blm15gg221sz1d-productdetails.json"));
 
         await client.GetProductDetailsAsync(DigiKeyTestSetup.Query("BLM18HE601SN1", "Murata"), Token);
 
@@ -86,7 +86,7 @@ public sealed class DigiKeyClientTests
         var (client, handler) = DigiKeyTestSetup.CreateClient();
         handler
             .RespondJson(DigiKeyTestSetup.TokenJson)
-            .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-productdetails.json"));
+            .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-nexperia-productdetails.json"));
 
         await client.GetProductDetailsAsync(DigiKeyTestSetup.Query("BAT54CW,115", "NXP"), Token);
 
@@ -101,7 +101,7 @@ public sealed class DigiKeyClientTests
             .RespondJson(DigiKeyTestSetup.TokenJson)
             .RespondStatus(HttpStatusCode.NotFound, "{\"detail\":\"Duplicate Products found\"}")
             .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-keyword.json"))
-            .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-productdetails.json"));
+            .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-nexperia-productdetails.json"));
 
         var result = await client.GetProductDetailsAsync(
             DigiKeyTestSetup.Query("BAT54CW,115", "NXP"),
@@ -117,7 +117,7 @@ public sealed class DigiKeyClientTests
         Assert.Contains("\"Keywords\":\"BAT54CW,115\"", keyword.Body);
 
         var retried = handler.Requests[3];
-        Assert.Contains("manufacturerId=281", retried.Uri);
+        Assert.Contains("manufacturerId=568", retried.Uri);
     }
 
     [Fact]

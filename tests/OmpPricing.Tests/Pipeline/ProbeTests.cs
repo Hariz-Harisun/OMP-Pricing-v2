@@ -32,19 +32,19 @@ public sealed class ProbeTests : IDisposable
         var (provider, handler) = DigiKeyTestSetup.CreateProvider();
         handler.RespondJson(DigiKeyTestSetup.TokenJson);
         handler.RespondJson(
-            DigiKeyTestSetup.Fixture("blm18he601sn1-productdetails.json"),
+            DigiKeyTestSetup.Fixture("blm15gg221sz1d-productdetails.json"),
             configure: response =>
             {
                 response.Headers.TryAddWithoutValidation("X-RateLimit-Limit", "120");
                 response.Headers.TryAddWithoutValidation("X-RateLimit-Remaining", "118");
             });
 
-        var report = await new ProbeRunner(_state).RunAsync(provider, "BLM18HE601SN1", 400, _out, CancellationToken.None);
+        var report = await new ProbeRunner(_state).RunAsync(provider, "BLM15GG221SZ1D", 400, _out, CancellationToken.None);
 
         Assert.Equal(ProviderStatus.Found, report.Result.Status);
         Assert.Equal(3, report.Result.Offers.Count);
         Assert.True(File.Exists(report.FilePath));
-        Assert.Matches(@"DigiKey_BLM18HE601SN1_\d{8}-\d{6}\.json$", Path.GetFileName(report.FilePath));
+        Assert.Matches(@"DigiKey_BLM15GG221SZ1D_\d{8}-\d{6}\.json$", Path.GetFileName(report.FilePath));
 
         var saved = File.ReadAllText(report.FilePath);
         using var document = JsonDocument.Parse(saved);
@@ -61,20 +61,21 @@ public sealed class ProbeTests : IDisposable
         Assert.Equal(
             "120",
             exchange.GetProperty("response").GetProperty("headers").GetProperty("X-RateLimit-Limit").GetString());
+        // Live shape (2026-11-19): Product object, not Products array.
         Assert.Equal(
-            "BLM18HE601SN1D",
-            exchange.GetProperty("response").GetProperty("body").GetProperty("Products")[0]
+            "BLM15GG221SZ1D",
+            exchange.GetProperty("response").GetProperty("body").GetProperty("Product")
                 .GetProperty("ManufacturerProductNumber").GetString());
 
         // One request per lookup: the token call is not captured.
         Assert.Single(root.GetProperty("exchanges").EnumerateArray());
 
         var summary = _out.ToString();
-        Assert.Contains("DigiKey probe: BLM18HE601SN1 qty 400", summary);
-        Assert.Contains("490-5214-2-ND", summary);
-        Assert.Contains("MOQ 4000", summary);
+        Assert.Contains("DigiKey probe: BLM15GG221SZ1D qty 400", summary);
+        Assert.Contains("490-BLM15GG221SZ1DTR-ND", summary);
+        Assert.Contains("MOQ 10000", summary);
         Assert.Contains("Tape & Reel (TR)", summary);
-        Assert.Contains("0.08825", summary);
+        Assert.Contains("0.213", summary);
         Assert.Contains("Rate limit: 120 limit, 118 remaining", summary);
     }
 
@@ -83,9 +84,9 @@ public sealed class ProbeTests : IDisposable
     {
         var (provider, handler) = DigiKeyTestSetup.CreateProvider();
         handler.RespondJson(DigiKeyTestSetup.TokenJson);
-        handler.RespondJson(DigiKeyTestSetup.Fixture("blm18he601sn1-productdetails.json"));
+        handler.RespondJson(DigiKeyTestSetup.Fixture("blm15gg221sz1d-productdetails.json"));
 
-        var report = await new ProbeRunner(_state).RunAsync(provider, "BLM18HE601SN1", 1, _out, CancellationToken.None);
+        var report = await new ProbeRunner(_state).RunAsync(provider, "BLM15GG221SZ1D", 1, _out, CancellationToken.None);
         var saved = File.ReadAllText(report.FilePath);
 
         Assert.DoesNotContain("test-token", saved);
@@ -131,10 +132,45 @@ public sealed class ProbeTests : IDisposable
             "{\"detail\":\"too many\"}",
             response => response.Headers.TryAddWithoutValidation("X-RateLimit-Remaining", "0"));
 
-        var report = await new ProbeRunner(_state).RunAsync(provider, "BLM18HE601SN1", 1, _out, CancellationToken.None);
+        var report = await new ProbeRunner(_state).RunAsync(provider, "BLM15GG221SZ1D", 1, _out, CancellationToken.None);
 
         Assert.Equal(ProviderStatus.Throttled, report.Result.Status);
         Assert.Contains("Rate limit: ? limit, 0 remaining", _out.ToString());
+    }
+
+    [Fact]
+    public async Task Probe_passes_the_manufacturer_to_the_provider_and_saves_it()
+    {
+        var provider = new FakeProvider().RespondAll(query =>
+            ProviderResult.Found([FakeProvider.EchoOffer(query, mfg: query.Mfg)]));
+
+        var report = await new ProbeRunner(_state).RunAsync(
+            provider,
+            "BAT54CW,115",
+            25,
+            _out,
+            CancellationToken.None,
+            "Diodes Incorporated");
+
+        Assert.Equal("Diodes Incorporated", Assert.Single(provider.Calls).Mfg);
+        Assert.Equal(25, provider.Calls[0].Qty);
+
+        using var document = JsonDocument.Parse(File.ReadAllText(report.FilePath));
+        Assert.Equal(
+            "Diodes Incorporated",
+            document.RootElement.GetProperty("probe").GetProperty("mfg").GetString());
+        Assert.Contains("mfg Diodes Incorporated", _out.ToString());
+    }
+
+    [Fact]
+    public async Task Without_a_manufacturer_the_query_carries_an_empty_one()
+    {
+        var provider = new FakeProvider().RespondAll(query => ProviderResult.NotFound());
+
+        await new ProbeRunner(_state).RunAsync(provider, "X1", 1, _out, CancellationToken.None);
+
+        Assert.Equal("", Assert.Single(provider.Calls).Mfg);
+        Assert.DoesNotContain(" mfg ", _out.ToString());
     }
 
     [Fact]

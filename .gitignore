@@ -30,3 +30,8 @@ secrets.json
 ## OS noise
 Thumbs.db
 .DS_Store
+
+# Local credential files: never commit
+omp-digikey*.txt
+omp-digikey*.txt.txt
+*.secrets

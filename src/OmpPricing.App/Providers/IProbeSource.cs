@@ -51,7 +51,7 @@ public static class ProbeSanitizer
         {
             var joined = string.Join(", ", values);
             // A header named like a credential is dropped; nothing of its value is kept at all.
-            if (IsSecretHeader(name))
+            if (IsSecretHeader(name) || string.IsNullOrWhiteSpace(joined))
             {
                 continue;
             }

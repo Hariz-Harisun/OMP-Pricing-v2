@@ -31,9 +31,9 @@ public sealed class PartMatcherTests
     [Fact]
     public void Known_packaging_suffix_is_a_packaging_variant()
     {
-        var query = new PartQuery { Mpn = "BLM18HE601SN1", Mfg = "Murata" };
+        var query = new PartQuery { Mpn = "BLM15GG221SZ1", Mfg = "Murata" };
 
-        var level = Matcher().Classify(query, OfferFor("Murata Electronics", "BLM18HE601SN1D"));
+        var level = Matcher().Classify(query, OfferFor("Murata Electronics", "BLM15GG221SZ1D"));
 
         Assert.Equal(MatchLevel.PackagingVariant, level);
     }

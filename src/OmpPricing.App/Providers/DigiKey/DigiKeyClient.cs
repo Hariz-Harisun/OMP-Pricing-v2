@@ -218,8 +218,9 @@ public sealed class DigiKeyClient : IProbeSource
                 false);
         }
 
-        var search = JsonSerializer.Deserialize<DigiKeySearchResponse>(body, JsonOptions);
-        var product = search?.Products?.FirstOrDefault();
+        // Live shape (2026-11-19): one Product object, not a Products array.
+        var details = JsonSerializer.Deserialize<DigiKeyDetailsResponse>(body, JsonOptions);
+        var product = details?.Product;
         return product is null
             ? new DigiKeyLookup(DigiKeyLookupStatus.NotFound, null, "DigiKey returned no products", rateLimit, false)
             : new DigiKeyLookup(DigiKeyLookupStatus.Found, product, null, rateLimit, false);

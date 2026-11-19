@@ -19,9 +19,9 @@ public sealed class RuleTablesTests
         var rules = SuffixRules.Load(Sample.RulesFile("suffix-rules.json"));
 
         Assert.Equal(1, rules.Count);
-        Assert.True(rules.IsKnownSuffix("Murata", "BLM18HE601SN1", "BLM18HE601SN1D"));
-        Assert.False(rules.IsKnownSuffix("Murata", "BLM18HE601SN1", "BLM18HE601SN1E"));
-        Assert.False(rules.IsKnownSuffix("TDK", "BLM18HE601SN1", "BLM18HE601SN1D"));
+        Assert.True(rules.IsKnownSuffix("Murata", "BLM15GG221SZ1", "BLM15GG221SZ1D"));
+        Assert.False(rules.IsKnownSuffix("Murata", "BLM15GG221SZ1", "BLM15GG221SZ1E"));
+        Assert.False(rules.IsKnownSuffix("TDK", "BLM15GG221SZ1", "BLM15GG221SZ1D"));
     }
 
     [Fact]

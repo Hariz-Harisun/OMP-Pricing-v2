@@ -1,0 +1,315 @@
+{
+  "SearchLocaleUsed": {
+    "Site": "US",
+    "Language": "en",
+    "Currency": "USD"
+  },
+  "Product": {
+    "Description": {
+      "ProductDescription": "FERRITE BEAD 220 OHM 0402 1LN",
+      "DetailedDescription": "220 Ohms @ 100 MHz 1 Signal Line Ferrite Bead 0402 (1005 Metric) 300mA 700mOhm"
+    },
+    "Manufacturer": {
+      "Id": 490,
+      "Name": "Murata Electronics"
+    },
+    "ManufacturerProductNumber": "BLM15GG221SZ1D",
+    "UnitPrice": 0.76,
+    "ProductUrl": "https://www.digikey.com/en/products/detail/murata-electronics/BLM15GG221SZ1D/8323755",
+    "DatasheetUrl": "https://www.murata.com/en-us/products/productdata/8796749332510/QNFA9120.pdf",
+    "PhotoUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/medias/images/5481/409-Chip-Ferritte-Beads-Black-Field.jpg",
+    "ProductVariations": [
+      {
+        "DigiKeyProductNumber": "490-BLM15GG221SZ1DTR-ND",
+        "PackageType": {
+          "Id": 1,
+          "Name": "Tape & Reel (TR)"
+        },
+        "StandardPricing": [
+          {
+            "BreakQuantity": 10000,
+            "UnitPrice": 0.213,
+            "TotalPrice": 2130.0
+          }
+        ],
+        "MyPricing": [],
+        "MarketPlace": false,
+        "TariffActive": true,
+        "Supplier": {
+          "Id": 490,
+          "Name": "Murata Electronics"
+        },
+        "QuantityAvailableforPackageType": 0,
+        "MaxQuantityForDistribution": 999999999,
+        "MinimumOrderQuantity": 10000,
+        "StandardPackage": 10000,
+        "DigiReelFee": 0.0
+      },
+      {
+        "DigiKeyProductNumber": "490-BLM15GG221SZ1DCT-ND",
+        "PackageType": {
+          "Id": 2,
+          "Name": "Cut Tape (CT)"
+        },
+        "StandardPricing": [
+          {
+            "BreakQuantity": 1,
+            "UnitPrice": 0.76,
+            "TotalPrice": 0.76
+          },
+          {
+            "BreakQuantity": 10,
+            "UnitPrice": 0.53,
+            "TotalPrice": 5.3
+          },
+          {
+            "BreakQuantity": 25,
+            "UnitPrice": 0.4568,
+            "TotalPrice": 11.42
+          },
+          {
+            "BreakQuantity": 50,
+            "UnitPrice": 0.4066,
+            "TotalPrice": 20.33
+          },
+          {
+            "BreakQuantity": 100,
+            "UnitPrice": 0.3601,
+            "TotalPrice": 36.01
+          },
+          {
+            "BreakQuantity": 250,
+            "UnitPrice": 0.3038,
+            "TotalPrice": 75.95
+          },
+          {
+            "BreakQuantity": 500,
+            "UnitPrice": 0.26472,
+            "TotalPrice": 132.36
+          },
+          {
+            "BreakQuantity": 1000,
+            "UnitPrice": 0.26071,
+            "TotalPrice": 260.71
+          }
+        ],
+        "MyPricing": [],
+        "MarketPlace": false,
+        "TariffActive": true,
+        "Supplier": {
+          "Id": 490,
+          "Name": "Murata Electronics"
+        },
+        "QuantityAvailableforPackageType": 8834,
+        "MaxQuantityForDistribution": 999999999,
+        "MinimumOrderQuantity": 1,
+        "StandardPackage": 1,
+        "DigiReelFee": 0.0
+      },
+      {
+        "DigiKeyProductNumber": "490-BLM15GG221SZ1DDKR-ND",
+        "PackageType": {
+          "Id": 243,
+          "Name": "Digi-Reel®"
+        },
+        "StandardPricing": [
+          {
+            "BreakQuantity": 1,
+            "UnitPrice": 0.76,
+            "TotalPrice": 0.76
+          },
+          {
+            "BreakQuantity": 10,
+            "UnitPrice": 0.53,
+            "TotalPrice": 5.3
+          },
+          {
+            "BreakQuantity": 25,
+            "UnitPrice": 0.4568,
+            "TotalPrice": 11.42
+          },
+          {
+            "BreakQuantity": 50,
+            "UnitPrice": 0.4066,
+            "TotalPrice": 20.33
+          },
+          {
+            "BreakQuantity": 100,
+            "UnitPrice": 0.3601,
+            "TotalPrice": 36.01
+          },
+          {
+            "BreakQuantity": 250,
+            "UnitPrice": 0.3038,
+            "TotalPrice": 75.95
+          },
+          {
+            "BreakQuantity": 500,
+            "UnitPrice": 0.26472,
+            "TotalPrice": 132.36
+          },
+          {
+            "BreakQuantity": 1000,
+            "UnitPrice": 0.26071,
+            "TotalPrice": 260.71
+          }
+        ],
+        "MyPricing": [],
+        "MarketPlace": false,
+        "TariffActive": true,
+        "Supplier": {
+          "Id": 490,
+          "Name": "Murata Electronics"
+        },
+        "QuantityAvailableforPackageType": 8834,
+        "MaxQuantityForDistribution": 999999999,
+        "MinimumOrderQuantity": 1,
+        "StandardPackage": 1,
+        "DigiReelFee": 7.0
+      }
+    ],
+    "QuantityAvailable": 8834,
+    "ProductStatus": {
+      "Id": 0,
+      "Status": "Active"
+    },
+    "BackOrderNotAllowed": false,
+    "NormallyStocking": true,
+    "Discontinued": false,
+    "EndOfLife": false,
+    "Ncnr": false,
+    "PrimaryVideoUrl": "",
+    "Parameters": [
+      {
+        "ParameterId": 21,
+        "ParameterText": "Filter Type",
+        "ParameterType": "String",
+        "ValueId": "402741",
+        "ValueText": "Signal Line"
+      },
+      {
+        "ParameterId": 2169,
+        "ParameterText": "Number of Lines",
+        "ParameterType": "Double",
+        "ValueId": "1",
+        "ValueText": "1"
+      },
+      {
+        "ParameterId": 2280,
+        "ParameterText": "Impedance @ Frequency",
+        "ParameterType": "CoupledUnitOfMeasure",
+        "ValueId": "220 Ohms @ 100 MHz",
+        "ValueText": "220 Ohms @ 100 MHz"
+      },
+      {
+        "ParameterId": 1923,
+        "ParameterText": "Current Rating (Max)",
+        "ParameterType": "String",
+        "ValueId": "182276",
+        "ValueText": "300mA"
+      },
+      {
+        "ParameterId": 1924,
+        "ParameterText": "DC Resistance (DCR) (Max)",
+        "ParameterType": "String",
+        "ValueId": "273137",
+        "ValueText": "700mOhm"
+      },
+      {
+        "ParameterId": 707,
+        "ParameterText": "Ratings",
+        "ParameterType": "String",
+        "ValueId": "312105",
+        "ValueText": "AEC-Q200"
+      },
+      {
+        "ParameterId": 252,
+        "ParameterText": "Operating Temperature",
+        "ParameterType": "String",
+        "ValueId": "242918",
+        "ValueText": "-55°C ~ 125°C"
+      },
+      {
+        "ParameterId": 16,
+        "ParameterText": "Package / Case",
+        "ParameterType": "String",
+        "ValueId": "39158",
+        "ValueText": "0402 (1005 Metric)"
+      },
+      {
+        "ParameterId": 69,
+        "ParameterText": "Mounting Type",
+        "ParameterType": "String",
+        "ValueId": "409393",
+        "ValueText": "Surface Mount"
+      },
+      {
+        "ParameterId": 966,
+        "ParameterText": "Height (Max)",
+        "ParameterType": "String",
+        "ValueId": "5314",
+        "ValueText": "0.022\" (0.55mm)"
+      },
+      {
+        "ParameterId": 46,
+        "ParameterText": "Size / Dimension",
+        "ParameterType": "String",
+        "ValueId": "6310",
+        "ValueText": "0.039\" L x 0.020\" W (1.00mm x 0.50mm)"
+      },
+      {
+        "ParameterId": 5,
+        "ParameterText": "Features",
+        "ParameterType": "String",
+        "ValueId": "316912",
+        "ValueText": "Automotive"
+      }
+    ],
+    "BaseProductNumber": {
+      "Id": 178196,
+      "Name": "BLM15GG"
+    },
+    "Category": {
+      "CategoryId": 36,
+      "ParentId": 0,
+      "Name": "Filters",
+      "ProductCount": 0,
+      "NewProductCount": 0,
+      "ImageUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/derivates/3/010/120/MFG_Star-Tec-LFS_tmb.jpg",
+      "SeoDescription": "The filter product category includes a wide variety of devices and materials used for the separation, suppression, or selection of electrical and magnetic signals on the basis of frequency. Products designed for use across a wide range of contexts are included, ranging from power lines carrying kiloamperes at DC to radio receivers detecting microvolt-level signals at frequencies of tens of gigahertz.",
+      "ChildCategories": [
+        {
+          "CategoryId": 841,
+          "ParentId": 36,
+          "Name": "Ferrite Beads and Chips",
+          "ProductCount": 0,
+          "NewProductCount": 0,
+          "ImageUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/derivates/3/300/281/882/MPZ2012xxxxxxxx_tmb.jpg",
+          "SeoDescription": "Ferrite cores are devices that are designed to prevent high frequency noise or EMI (electromagnetic interference). These ferrite cores are made to be placed within an electric circuit. Key characteristics are the filter type (differential, signal, or power), number of lines, max current rating, impedance and a specified frequency, and mounting type (free hanging, surface mount, or through-hole).",
+          "ChildCategories": []
+        }
+      ]
+    },
+    "ManufacturerLeadWeeks": "24",
+    "ManufacturerPublicQuantity": 0,
+    "Series": {
+      "Id": 56904,
+      "Name": "BLM"
+    },
+    "Classifications": {
+      "ReachStatus": "REACH Unaffected",
+      "RohsStatus": "ROHS3 Compliant",
+      "MoistureSensitivityLevel": "1  (Unlimited)",
+      "ExportControlClassNumber": "EAR99",
+      "HtsusCode": "8548.00.0000"
+    },
+    "OtherNames": [
+      "BLM15GG221SZ1D-ND",
+      "490-BLM15GG221SZ1DTR",
+      "490-BLM15GG221SZ1DDKR",
+      "490-BLM15GG221SZ1DCT"
+    ]
+  },
+  "AccountIdUsed": 0,
+  "CustomerIdUsed": 0
+}

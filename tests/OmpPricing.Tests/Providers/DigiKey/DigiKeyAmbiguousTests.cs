@@ -33,7 +33,7 @@ public sealed class DigiKeyAmbiguousTests
         Assert.Empty(result.Offers);
         Assert.Contains("Duplicate Products found", result.Message);
         Assert.Contains("NXP", result.Message);
-        Assert.Contains("Diodes", result.Message);
+        Assert.Contains("Nexperia", result.Message);
     }
 
     [Fact]
@@ -44,12 +44,12 @@ public sealed class DigiKeyAmbiguousTests
             .RespondJson(DigiKeyTestSetup.TokenJson)
             .RespondStatus(HttpStatusCode.NotFound, "{\"detail\":\"Duplicate Products found\"}")
             .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-keyword.json"))
-            .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-productdetails.json"));
+            .RespondJson(DigiKeyTestSetup.Fixture("bat54cw115-nexperia-productdetails.json"));
 
         var result = await provider.FindAsync(DigiKeyTestSetup.Query("BAT54CW,115", "NXP"), Token);
 
         Assert.Equal(ProviderStatus.Found, result.Status);
         Assert.NotEmpty(result.Offers);
-        Assert.Contains("manufacturerId=281", handler.Requests[3].Uri);
+        Assert.Contains("manufacturerId=568", handler.Requests[3].Uri);
     }
 }

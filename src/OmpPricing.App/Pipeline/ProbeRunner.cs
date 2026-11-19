@@ -48,14 +48,15 @@ public sealed class ProbeRunner
         string mpn,
         int qty,
         TextWriter output,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? mfg = null)
     {
         if (provider is IProbeSource source)
         {
             source.ResetExchanges();
         }
 
-        var query = new PartQuery { Mpn = mpn, Qty = qty };
+        var query = new PartQuery { Mpn = mpn, Mfg = mfg ?? "", Qty = qty };
         ProviderResult result;
         try
         {
@@ -68,9 +69,9 @@ public sealed class ProbeRunner
 
         var exchanges = provider is IProbeSource captured ? captured.Exchanges : [];
         var capturedAt = _time.GetUtcNow();
-        var path = Save(provider.Name, mpn, qty, result, exchanges, capturedAt);
+        var path = Save(provider.Name, mpn, qty, mfg, result, exchanges, capturedAt);
 
-        WriteSummary(output, provider.Name, mpn, qty, result, exchanges, path);
+        WriteSummary(output, provider.Name, mpn, qty, mfg, result, exchanges, path);
         return new ProbeReport(provider.Name, mpn, qty, result, path);
     }
 
@@ -78,6 +79,7 @@ public sealed class ProbeRunner
         string provider,
         string mpn,
         int qty,
+        string? mfg,
         ProviderResult result,
         IReadOnlyList<ProbeExchange> exchanges,
         DateTimeOffset capturedAt)
@@ -90,6 +92,7 @@ public sealed class ProbeRunner
             {
                 ["provider"] = provider,
                 ["mpn"] = mpn,
+                ["mfg"] = mfg ?? "",
                 ["qty"] = qty,
                 ["capturedAtUtc"] = capturedAt.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture),
                 ["note"] = "Credentials are removed: bearer tokens, cookies, API keys and "
@@ -205,11 +208,14 @@ public sealed class ProbeRunner
         string provider,
         string mpn,
         int qty,
+        string? mfg,
         ProviderResult result,
         IReadOnlyList<ProbeExchange> exchanges,
         string path)
     {
-        output.WriteLine($"{provider} probe: {mpn} qty {qty}");
+        output.WriteLine(
+            $"{provider} probe: {mpn} qty {qty}"
+            + (string.IsNullOrWhiteSpace(mfg) ? "" : $" mfg {mfg}"));
         output.WriteLine($"Status: {result.Status}");
 
         if (!string.IsNullOrWhiteSpace(result.Message))

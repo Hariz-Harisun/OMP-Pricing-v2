@@ -32,7 +32,11 @@ public sealed class DigiKeyOptions
 
     public string? ClientSecret { get; set; }
 
-    /// <summary>Required for 2-legged OAuth (A5).</summary>
+    /// <summary>
+    /// The account id sent as X-DIGIKEY-Account-Id. A5 calls it required for 2-legged OAuth, but a live
+    /// token + productdetails call on 2026-11-19 was accepted without it (404 for an unknown part, not
+    /// 401), so it is optional here: the header is simply left out when the value is empty.
+    /// </summary>
     public string? AccountId { get; set; }
 
     public ProviderRateLimits RateLimits { get; set; } = new() { PerMinute = 120, PerDay = 1000 };
@@ -50,11 +54,6 @@ public sealed class DigiKeyOptions
         if (string.IsNullOrWhiteSpace(ClientSecret))
         {
             missing.Add("ClientSecret");
-        }
-
-        if (string.IsNullOrWhiteSpace(AccountId))
-        {
-            missing.Add("AccountId");
         }
 
         if (missing.Count == 0)

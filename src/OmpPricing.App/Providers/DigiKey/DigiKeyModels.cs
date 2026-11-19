@@ -2,8 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace OmpPricing.App.Providers.DigiKey;
 
-// Response types for DigiKey v4. Field names follow the response shape recorded in A5; anything not
-// confirmed there is marked UNVERIFIED and is only mapped when the shape is known.
+// Response types for DigiKey v4. Field names were confirmed against the live API on 2026-11-19 where
+// marked; anything not seen in a real response is marked UNVERIFIED.
 
 public sealed class DigiKeyTokenResponse
 {
@@ -27,6 +27,26 @@ public sealed class DigiKeySearchResponse
 
     [JsonPropertyName("SearchLocaleUsed")]
     public DigiKeyLocale? SearchLocaleUsed { get; set; }
+}
+
+/// <summary>
+/// The productdetails answer. Confirmed against the live API on 2026-11-19: it returns a single
+/// <c>Product</c>, not a <c>Products</c> array as A5 states, plus the account and customer DigiKey used
+/// and the locale it applied (AccountIdUsed is 0 for 2-legged OAuth without an account id).
+/// </summary>
+public sealed class DigiKeyDetailsResponse
+{
+    [JsonPropertyName("Product")]
+    public DigiKeyProduct? Product { get; set; }
+
+    [JsonPropertyName("SearchLocaleUsed")]
+    public DigiKeyLocale? SearchLocaleUsed { get; set; }
+
+    [JsonPropertyName("AccountIdUsed")]
+    public int? AccountIdUsed { get; set; }
+
+    [JsonPropertyName("CustomerIdUsed")]
+    public int? CustomerIdUsed { get; set; }
 }
 
 public sealed class DigiKeyLocale
@@ -71,6 +91,7 @@ public sealed class DigiKeyProduct
     [JsonPropertyName("ProductStatus")]
     public DigiKeyProductStatus? ProductStatus { get; set; }
 
+    // UNVERIFIED: not present in the live productdetails or keyword responses seen on 2026-11-19.
     [JsonPropertyName("QuantityAvailable")]
     public int? QuantityAvailable { get; set; }
 }
@@ -90,6 +111,10 @@ public sealed class DigiKeyProductStatus
     public string? Status { get; set; }
 }
 
+/// <summary>
+/// Confirmed live: RohsStatus, ReachStatus, MoistureSensitivityLevel, ExportControlClassNumber,
+/// HtsusCode. There is no country-of-origin field, so column 21 stays a rule-table decision.
+/// </summary>
 public sealed class DigiKeyClassifications
 {
     [JsonPropertyName("RohsStatus")]

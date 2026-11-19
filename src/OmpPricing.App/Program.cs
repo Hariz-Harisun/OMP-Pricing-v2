@@ -41,6 +41,10 @@ public static class Program
 
         var configuration = BuildConfiguration();
         var excel = configuration.GetSection("Omp:Excel").Get<ExcelOptions>() ?? new ExcelOptions();
+        if (options.Sheet is not null)
+        {
+            excel.SheetName = options.Sheet;
+        }
         var rulesFolder = ResolveRulesFolder(configuration["Omp:RulesFolder"] ?? "rules");
         var outputFolder = Path.GetFullPath(configuration["Omp:OutputFolder"] ?? "output");
         var stateFolder = Path.GetFullPath(configuration["Omp:StateFolder"] ?? "state");
@@ -194,10 +198,21 @@ public static class Program
             return 2;
         }
 
-        Log.Information("Probe {Provider} for {Mpn} at qty {Qty}", provider.Name, options.ProbeMpn, options.Qty);
+        Log.Information(
+            "Probe {Provider} for {Mpn} at qty {Qty}{Mfg}",
+            provider.Name,
+            options.ProbeMpn,
+            options.Qty,
+            string.IsNullOrWhiteSpace(options.ProbeMfg) ? "" : ", mfg " + options.ProbeMfg);
 
         var runner = new ProbeRunner(stateFolder);
-        var report = await runner.RunAsync(provider, options.ProbeMpn!, options.Qty, Console.Out, CancellationToken.None);
+        var report = await runner.RunAsync(
+            provider,
+            options.ProbeMpn!,
+            options.Qty,
+            Console.Out,
+            CancellationToken.None,
+            options.ProbeMfg);
 
         return report.Result.Status switch
         {

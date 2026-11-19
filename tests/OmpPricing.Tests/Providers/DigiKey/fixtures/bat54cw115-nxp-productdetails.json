@@ -1,0 +1,122 @@
+{
+  "SearchLocaleUsed": {
+    "Site": "US",
+    "Language": "en",
+    "Currency": "USD"
+  },
+  "Product": {
+    "Description": {
+      "ProductDescription": "DIODE SCHOTTKY 30V 200MA SOT323",
+      "DetailedDescription": "Diode Array"
+    },
+    "Manufacturer": {
+      "Id": 568,
+      "Name": "NXP USA Inc."
+    },
+    "ManufacturerProductNumber": "BAT54CW,115",
+    "UnitPrice": 0.0,
+    "ProductUrl": "https://www.digikey.com/en/products/detail/nxp-usa-inc/BAT54CW-115/10476270",
+    "DatasheetUrl": "https://assets.nexperia.com/documents/data-sheet/BAT54CW.pdf",
+    "PhotoUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/medias/images/2949/NXP_SOT-70%2C%20SOT-323.jpg",
+    "ProductVariations": [
+      {
+        "DigiKeyProductNumber": "568-BAT54CW,115TR-ND",
+        "PackageType": {
+          "Id": 1,
+          "Name": "Tape & Reel (TR)"
+        },
+        "StandardPricing": [],
+        "MyPricing": [],
+        "MarketPlace": false,
+        "TariffActive": false,
+        "Supplier": {
+          "Id": 568,
+          "Name": "NXP USA Inc."
+        },
+        "QuantityAvailableforPackageType": 0,
+        "MaxQuantityForDistribution": 999999999,
+        "StandardPackage": 3000,
+        "DigiReelFee": 0.0
+      }
+    ],
+    "ProductStatus": {
+      "Id": 2,
+      "Status": "Discontinued at DigiKey"
+    },
+    "BackOrderNotAllowed": false,
+    "NormallyStocking": false,
+    "Discontinued": false,
+    "EndOfLife": false,
+    "Ncnr": false,
+    "PrimaryVideoUrl": "",
+    "Parameters": [],
+    "BaseProductNumber": {
+      "Id": 3167,
+      "Name": "BAT54"
+    },
+    "Category": {
+      "CategoryId": 19,
+      "ParentId": 0,
+      "Name": "Discrete Semiconductor Products",
+      "ProductCount": 0,
+      "NewProductCount": 0,
+      "ImageUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/derivates/3/010/350/MFG_CAB450M12XM3_tmb.jpg",
+      "SeoDescription": "Discrete semiconductor products include individual transistors, diodes, and thyristors, as well as small arrays of such composed of two, three, four, or some other small number of similar devices within a single package. They are most commonly used for constructing circuits with considerable voltage or current stress, or for realizing very basic circuit functions.",
+      "ChildCategories": [
+        {
+          "CategoryId": 2042,
+          "ParentId": 19,
+          "Name": "Diodes",
+          "ProductCount": 0,
+          "NewProductCount": 0,
+          "ImageUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/derivates/3/100/961/736/31_SOT-23-3%20PKG_tmb.jpg",
+          "SeoDescription": "Diodes are devices that allow the flow of current in one direction and block current flow in the opposite direction. Types of diodes include current regulation, bridge rectifiers, RF, rectifier arrays, rectifiers, variable capacitance (varicaps, varactors), zener, zener arrays, and more.",
+          "ChildCategories": [
+            {
+              "CategoryId": 2085,
+              "ParentId": 2042,
+              "Name": "Rectifiers",
+              "ProductCount": 0,
+              "NewProductCount": 0,
+              "ImageUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/derivates/3/300/349/140/DO-214AC%2CSMA_403D-02_tmb.jpg",
+              "SeoDescription": "Rectifiers are a diode family used to allow current flow in one direction only, and implement exactly one instance of this function per device package. Diodes used for other purposes (including zener and variable capacitance diodes) are listed separately in product families of their own, as are products incorporating multiple diodes per device package.",
+              "ChildCategories": [
+                {
+                  "CategoryId": 286,
+                  "ParentId": 2085,
+                  "Name": "Diode Arrays",
+                  "ProductCount": 0,
+                  "NewProductCount": 0,
+                  "ImageUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/derivates/3/002/673/937/SOT-23-3%20PKG_tmb%2864x64%29.jpg",
+                  "SeoDescription": "Products within the diode and rectifier array family incorporate two or more discrete diodes within a single package. They are characterized in terms similar to those used for single discrete diodes, with the addition of a \"Diode Configuration\" attribute indicating the presence and character of any internal connections between the diodes in the device. Note that arrays with a full-bridge configuration are specifically excluded, and listed as a separate product family.",
+                  "ChildCategories": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ManufacturerLeadWeeks": "52",
+    "ManufacturerPublicQuantity": 0,
+    "Series": {
+      "Id": 0,
+      "Name": "*"
+    },
+    "Classifications": {
+      "ReachStatus": "REACH Unaffected",
+      "RohsStatus": "ROHS3 Compliant",
+      "MoistureSensitivityLevel": "",
+      "ExportControlClassNumber": "EAR99",
+      "HtsusCode": "8541.10.0070"
+    },
+    "OtherNames": [
+      "568-BAT54CW,115TR",
+      "NEXNXPBAT54CW,115",
+      "2156-BAT54CW,115",
+      "954-BAT54CW115"
+    ]
+  },
+  "AccountIdUsed": 0,
+  "CustomerIdUsed": 0
+}

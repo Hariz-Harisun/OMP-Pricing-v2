@@ -28,7 +28,7 @@ public sealed class OffersSheetTests : IClassFixture<OffersSheetTests.Fixture>
         private static IPriceProvider CreateProvider()
         {
             var (provider, handler) = DigiKeyTestSetup.CreateProvider();
-            var fixture = DigiKeyTestSetup.Fixture("blm18he601sn1-productdetails.json");
+            var fixture = DigiKeyTestSetup.Fixture("blm15gg221sz1d-productdetails.json");
 
             handler.RespondAny(request =>
             {
@@ -39,9 +39,9 @@ public sealed class OffersSheetTests : IClassFixture<OffersSheetTests.Fixture>
                     return Json(DigiKeyTestSetup.TokenJson);
                 }
 
-                // Echo the requested number into the fixture so every line matches exactly.
+                // Echo the requested MPN into the fixture so the MPN matches the spreadsheet line.
                 var number = ExtractProductNumber(uri);
-                var body = fixture.Replace("BLM18HE601SN1D", number, StringComparison.Ordinal);
+                var body = fixture.Replace("BLM15GG221SZ1D", number, StringComparison.Ordinal);
 
                 var response = Json(body);
                 response.Headers.TryAddWithoutValidation("X-RateLimit-Limit", "120");
@@ -52,6 +52,11 @@ public sealed class OffersSheetTests : IClassFixture<OffersSheetTests.Fixture>
             return provider;
         }
 
+        private static HttpResponseMessage Json(string body) => new(HttpStatusCode.OK)
+        {
+            Content = new StringContent(body, Encoding.UTF8, "application/json"),
+        };
+
         private static string ExtractProductNumber(string uri)
         {
             const string marker = "/productdetails";
@@ -61,11 +66,6 @@ public sealed class OffersSheetTests : IClassFixture<OffersSheetTests.Fixture>
             var segment = end > index ? path[index..end] : path[index..];
             return Uri.UnescapeDataString(segment);
         }
-
-        private static HttpResponseMessage Json(string body) => new(HttpStatusCode.OK)
-        {
-            Content = new StringContent(body, Encoding.UTF8, "application/json"),
-        };
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public sealed class OffersSheetTests : IClassFixture<OffersSheetTests.Fixture>
 
         Assert.Equal(3, rows.Count);
         Assert.Equal(
-            ["Tape & Reel (TR)", "Cut Tape (CT)", "Digi-Reel"],
+            ["Tape & Reel (TR)", "Cut Tape (CT)", "Digi-Reel®"],
             rows.Select(row => sheet.Cell(row, 12).GetString()));
         Assert.Equal(3, rows.Select(row => sheet.Cell(row, 15).GetString()).Distinct().Count());
         Assert.Single(rows, row => sheet.Cell(row, 3).GetString() == "Yes");
@@ -95,12 +95,12 @@ public sealed class OffersSheetTests : IClassFixture<OffersSheetTests.Fixture>
         var selected = OfferRows(sheet, 10).Single(row => sheet.Cell(row, 3).GetString() == "Yes");
         var client = output.Worksheet("LT Quote");
 
-        // Tape and Reel is 0.08825 at MOQ 4000; cut tape and Digi-Reel start at 0.35.
+        // Tape and Reel is 0.213 at MOQ 10000; cut tape and Digi-Reel start at 0.76.
         Assert.Equal("Tape & Reel (TR)", sheet.Cell(selected, 12).GetString());
-        Assert.Equal(4000, sheet.Cell(selected, 9).Value.GetNumber());
-        Assert.Equal("490-5214-2-ND", sheet.Cell(selected, 15).GetString());
+        Assert.Equal(10000, sheet.Cell(selected, 9).Value.GetNumber());
+        Assert.Equal("490-GCJ32EC71E226KE02TR-ND", sheet.Cell(selected, 15).GetString());
         Assert.Equal("T&R", client.Cell(10, 18).GetString());
-        Assert.Equal(0.08825m, (decimal)client.Cell(10, 11).Value.GetNumber());
+        Assert.Equal(0.213m, (decimal)client.Cell(10, 11).Value.GetNumber());
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public sealed class OffersSheetTests : IClassFixture<OffersSheetTests.Fixture>
             .Distinct()
             .Count();
 
-        // The fixture is a Murata part, so only the 13 Murata lines match it.
+        // The fixture is a Murata part, so the 12 Murata lines plus 1 empty-MFG line match it.
         Assert.Equal(13, lines);
         Assert.Equal(13 * 3, Enumerable.Range(2, last - 1).Count(row => sheet.Cell(row, 4).GetString() == "DigiKey"));
     }

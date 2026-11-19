@@ -1,33 +1,62 @@
 {
-  "Products": [
-    {
-      "ManufacturerProductNumber": "BAT54CW,115",
-      "Manufacturer": { "Id": 281, "Name": "NXP USA Inc." },
-      "QuantityAvailable": 900,
-      "ManufacturerLeadWeeks": "12",
-      "ProductStatus": { "Status": "Active" },
-      "Ncnr": false,
-      "Discontinued": false,
-      "EndOfLife": false,
-      "Classifications": { "RohsStatus": "ROHS3 Compliant", "ReachStatus": "REACH Unaffected" },
-      "ProductVariations": [
-        {
-          "DigiKeyProductNumber": "568-9000-9-ND",
-          "PackageType": { "Id": 260, "Name": "Tray" },
-          "StandardPricing": [
-            { "BreakQuantity": 1, "UnitPrice": 0.20, "TotalPrice": 0.20 }
-          ],
-          "MyPricing": [],
-          "MarketPlace": true,
-          "TariffActive": true,
-          "QuantityAvailableforPackageType": 900,
-          "MinimumOrderQuantity": 1,
-          "StandardPackage": 1,
-          "DigiReelFee": 0
-        }
-      ]
+  "SearchLocaleUsed": {
+    "Site": "US",
+    "Language": "en",
+    "Currency": "USD"
+  },
+  "Product": {
+    "Description": {
+      "ProductDescription": "SCHOTTKY DIODE 30V 200MA SOD323",
+      "DetailedDescription": "Schottky Diode 30V 200mA 2-Pin SOD-323 T/R"
+    },
+    "Manufacturer": {
+      "Id": 281,
+      "Name": "NXP USA Inc."
+    },
+    "ManufacturerProductNumber": "BAT54CW,115",
+    "UnitPrice": 0.20,
+    "ProductUrl": "https://www.digikey.com/en/products/detail/nxp-usa-inc/BAT54CW%2C115/1028754",
+    "DatasheetUrl": "https://www.nxp.com/docs/en/data-sheet/BAT54.pdf",
+    "PhotoUrl": "https://mm.digikey.com/Volume0/opasdata/d220001/medias/images/2224/2224-ND.jpg",
+    "ProductVariations": [
+      {
+        "DigiKeyProductNumber": "568-9000-9-ND",
+        "PackageType": {
+          "Id": 260,
+          "Name": "Tray"
+        },
+        "StandardPricing": [
+          {
+            "BreakQuantity": 1,
+            "UnitPrice": 0.20,
+            "TotalPrice": 0.20
+          }
+        ],
+        "MyPricing": [],
+        "MarketPlace": true,
+        "TariffActive": true,
+        "Supplier": {
+          "Id": 281,
+          "Name": "NXP USA Inc."
+        },
+        "QuantityAvailableforPackageType": 900,
+        "MaxQuantityForDistribution": 999999999,
+        "MinimumOrderQuantity": 1,
+        "StandardPackage": 1,
+        "DigiReelFee": 0.0
+      }
+    ],
+    "Classifications": {
+      "RohsStatus": "ROHS3 Compliant",
+      "ReachStatus": "REACH Unaffected"
+    },
+    "ManufacturerLeadWeeks": "12",
+    "Ncnr": false,
+    "Discontinued": false,
+    "EndOfLife": false,
+    "ProductStatus": {
+      "Status": "Active"
     }
-  ],
-  "ExactMatches": [],
-  "SearchLocaleUsed": { "Site": "US", "Language": "en", "Currency": "USD" }
+  },
+  "ExactMatches": []
 }

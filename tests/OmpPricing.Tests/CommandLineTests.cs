@@ -16,6 +16,19 @@ public sealed class CommandLineTests
     }
 
     [Fact]
+    public void Probe_accepts_a_manufacturer()
+    {
+        var options = App.CommandLine.Parse(
+            ["--probe", "DigiKey", "BAT54CW,115", "--mfg", "Diodes Incorporated", "--qty", "10"]);
+
+        Assert.Equal("Diodes Incorporated", options.ProbeMfg);
+        Assert.Equal(10, options.Qty);
+
+        // Nothing else in a normal run sets it.
+        Assert.Null(App.CommandLine.Parse(["--file", "in.xlsx"]).ProbeMfg);
+    }
+
+    [Fact]
     public void Probe_accepts_a_quantity_and_no_cache()
     {
         var options = App.CommandLine.Parse(["--probe", "DigiKey", "BLM18HE601SN1", "--qty", "400", "--no-cache"]);
@@ -58,5 +71,6 @@ public sealed class CommandLineTests
         Assert.Contains("--probe <provider> <MPN>", App.CommandLine.Usage);
         Assert.Contains("--no-cache", App.CommandLine.Usage);
         Assert.Contains("--qty <n>", App.CommandLine.Usage);
+        Assert.Contains("--mfg <name>", App.CommandLine.Usage);
     }
 }
