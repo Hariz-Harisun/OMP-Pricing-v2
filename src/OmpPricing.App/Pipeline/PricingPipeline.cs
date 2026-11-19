@@ -26,6 +26,7 @@ public sealed class PricingPipeline
     private readonly PartMatcher _matcher;
     private readonly MatchCache _cache;
     private readonly ILogger _logger;
+    private readonly TimeProvider _time;
 
     public PricingPipeline(
         IReadOnlyList<IPriceProvider> providers,
@@ -34,7 +35,8 @@ public sealed class PricingPipeline
         CountryList countries,
         PartMatcher matcher,
         MatchCache cache,
-        ILogger logger)
+        ILogger logger,
+        TimeProvider? timeProvider = null)
     {
         _providers = providers;
         _excel = excel;
@@ -43,6 +45,7 @@ public sealed class PricingPipeline
         _matcher = matcher;
         _cache = cache;
         _logger = logger;
+        _time = timeProvider ?? TimeProvider.System;
     }
 
     public async Task<PipelineResult> RunAsync(
@@ -179,7 +182,8 @@ public sealed class PricingPipeline
 
                 if (_matcher.IsAccepted(level) && !string.IsNullOrWhiteSpace(offer.ProviderPartNumber))
                 {
-                    _cache.Record(line.Mfg, line.Mpn, provider.Name, offer.ProviderPartNumber, level);
+                    // Only Exact and PackagingVariant decisions are worth keeping (D6).
+                    _cache.Record(line.Mfg, line.Mpn, provider.Name, offer.ProviderPartNumber, level, _time.GetUtcNow());
                 }
             }
         }

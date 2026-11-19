@@ -30,7 +30,9 @@ public static class Program
             return 0;
         }
 
-        if (options.File is null)
+        var probeMode = options.ProbeProvider is not null;
+
+        if (!probeMode && options.File is null)
         {
             Console.Error.WriteLine("--file <path.xlsx> is required.");
             Console.Error.WriteLine(CommandLine.Usage);
@@ -48,11 +50,16 @@ public static class Program
 
         try
         {
+            if (probeMode)
+            {
+                return await RunProbeAsync(options, configuration, stateFolder);
+            }
+
             Log.Information("OmpPricing start, input {File}", options.File);
 
             if (options.ExportCountries)
             {
-                var content = await File.ReadAllBytesAsync(options.File);
+                var content = await File.ReadAllBytesAsync(options.File!);
                 var names = CountryListExporter.FromWorkbook(content, excel);
                 var target = Path.Combine(rulesFolder, "countries.txt");
                 CountryList.Save(names, target);
@@ -95,7 +102,12 @@ public static class Program
             }
 
             var cachePath = Path.Combine(stateFolder, "match-cache.json");
-            var cache = MatchCache.Load(cachePath);
+            var cache = options.NoCache ? MatchCache.Disabled : MatchCache.Load(cachePath, DateTimeOffset.UtcNow);
+
+            if (options.NoCache)
+            {
+                Log.Information("--no-cache: state/match-cache.json is neither read nor written");
+            }
 
             var pipeline = new PricingPipeline(
                 providers,
@@ -107,11 +119,14 @@ public static class Program
                 Log.Logger);
 
             var result = await pipeline.RunAsync(
-                new FileInputSource(options.File),
+                new FileInputSource(options.File!),
                 new FolderResultSink(outputFolder),
                 CancellationToken.None);
 
-            cache.Save(cachePath);
+            if (cache.Enabled)
+            {
+                cache.Save(cachePath);
+            }
 
             Log.Information("Data rows: {Rows}", result.LineCount);
             foreach (var (status, count) in result.StatusCounts.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
@@ -124,7 +139,11 @@ public static class Program
                 Log.Information("  provider {Provider}: {Count}", key, count);
             }
 
-            Log.Information("Match cache: {Count} decisions in {Path}", cache.Count, cachePath);
+            Log.Information(
+                "Match cache: {Count} decisions in {Path}{State}",
+                cache.Count,
+                cachePath,
+                cache.Enabled ? "" : " (disabled for this run)");
             Log.Information("Output: {Output}", result.OutputPath);
             return 0;
         }
@@ -152,6 +171,40 @@ public static class Program
             .AddEnvironmentVariables("OMP_")
             .AddUserSecrets(typeof(Program).Assembly, optional: true)
             .Build();
+    }
+
+    /// <summary>
+    /// `--probe &lt;provider&gt; &lt;MPN&gt;`: one real call to one part, a readable summary on stdout and the raw
+    /// exchanges saved under state/probe/. Exit code 0 Found, 2 NotFound/Ambiguous/Throttled, 1 Error.
+    /// </summary>
+    private static async Task<int> RunProbeAsync(
+        CommandLineOptions options,
+        IConfiguration configuration,
+        string stateFolder)
+    {
+        var providers = ProviderRegistry.FromAssembly().Build(configuration);
+        var provider = ProbeTarget.Resolve(providers, options.ProbeProvider!);
+
+        if (provider is null)
+        {
+            Log.Error(
+                "Provider {Provider} is not enabled. Enabled providers: {Enabled}",
+                options.ProbeProvider,
+                ProbeTarget.EnabledNames(providers));
+            return 2;
+        }
+
+        Log.Information("Probe {Provider} for {Mpn} at qty {Qty}", provider.Name, options.ProbeMpn, options.Qty);
+
+        var runner = new ProbeRunner(stateFolder);
+        var report = await runner.RunAsync(provider, options.ProbeMpn!, options.Qty, Console.Out, CancellationToken.None);
+
+        return report.Result.Status switch
+        {
+            ProviderStatus.Found => 0,
+            ProviderStatus.Error => 1,
+            _ => 2,
+        };
     }
 
     private static ILogger CreateLogger()

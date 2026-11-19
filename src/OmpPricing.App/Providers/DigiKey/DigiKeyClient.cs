@@ -16,25 +16,29 @@ public enum DigiKeyLookupStatus
     Error,
 }
 
+public sealed record DigiKeyManufacturerCandidate(string? Id, string Name);
+
 public sealed record DigiKeyLookup(
     DigiKeyLookupStatus Status,
     DigiKeyProduct? Product,
     string? Message,
     RateLimitInfo? RateLimit,
-    bool UsedManufacturerRetry);
+    bool UsedManufacturerRetry,
+    IReadOnlyList<string>? Candidates = null);
 
 /// <summary>
 /// HTTP calls for DigiKey v4: the 2-legged OAuth token with renewal, product details by MPN or
 /// DigiKey part number, the duplicate-manufacturer retry with manufacturerId, comma encoding, the
 /// required headers and the rate-limit headers (A5).
 /// </summary>
-public sealed class DigiKeyClient
+public sealed class DigiKeyClient : IProbeSource
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     private readonly HttpClient _http;
     private readonly TimeProvider _time;
     private readonly SemaphoreSlim _tokenGate = new(1, 1);
+    private readonly List<ProbeExchange> _exchanges = [];
 
     private string? _token;
     private DateTimeOffset _tokenExpiresAt = DateTimeOffset.MinValue;
@@ -50,6 +54,11 @@ public sealed class DigiKeyClient
 
     public DateTimeOffset TokenExpiresAt => _tokenExpiresAt;
 
+    /// <summary>Raw exchanges since the last reset, credentials removed. The token call is never recorded.</summary>
+    public IReadOnlyList<ProbeExchange> Exchanges => _exchanges;
+
+    public void ResetExchanges() => _exchanges.Clear();
+
     public async Task<DigiKeyLookup> GetProductDetailsAsync(PartQuery query, CancellationToken cancellationToken)
     {
         var token = await GetTokenAsync(cancellationToken);
@@ -64,25 +73,41 @@ public sealed class DigiKeyClient
 
         // A5: an MPN that matches several manufacturers returns 404 Duplicate Products found; retry
         // with the manufacturerId the keyword search reports for this MPN and manufacturer.
-        var manufacturerId = await FindManufacturerIdAsync(token, number, query.Mfg, cancellationToken);
-        if (manufacturerId is null)
+        var candidates = await FindManufacturersAsync(token, number, cancellationToken);
+        var manufacturerId = PickManufacturer(candidates, query.Mfg)?.Id;
+        var names = candidates.Select(candidate => candidate.Name).Distinct(StringComparer.Ordinal).ToList();
+
+        if (string.IsNullOrWhiteSpace(manufacturerId))
         {
             return first with
             {
-                Status = DigiKeyLookupStatus.NotFound,
-                Message = "Duplicate Products found and no manufacturerId could be resolved",
+                Status = DigiKeyLookupStatus.DuplicateProducts,
+                Message = "Duplicate Products found; manufacturer not resolved. Candidates: "
+                    + (names.Count > 0 ? string.Join(", ", names) : "none reported"),
+                Candidates = names,
             };
         }
 
         var retry = await SendDetailsAsync(token, number, manufacturerId, cancellationToken);
-        return retry with { UsedManufacturerRetry = true };
+        if (retry.Status == DigiKeyLookupStatus.DuplicateProducts)
+        {
+            return retry with
+            {
+                Message = "Duplicate Products found even with manufacturerId "
+                    + manufacturerId
+                    + ". Candidates: "
+                    + (names.Count > 0 ? string.Join(", ", names) : "none reported"),
+                Candidates = names,
+            };
+        }
+
+        return retry with { UsedManufacturerRetry = true, Candidates = names };
     }
 
-    /// <summary>Resolves the DigiKey manufacturer id used by the duplicate-product retry.</summary>
-    public async Task<string?> FindManufacturerIdAsync(
+    /// <summary>The manufacturers the keyword search reports for this MPN (the duplicate-product candidates).</summary>
+    public async Task<IReadOnlyList<DigiKeyManufacturerCandidate>> FindManufacturersAsync(
         string token,
         string mpn,
-        string? mfg,
         CancellationToken cancellationToken)
     {
         var request = new DigiKeyKeywordRequest { Keywords = mpn, Limit = 10, Offset = 0 };
@@ -95,27 +120,56 @@ public sealed class DigiKeyClient
         AddHeaders(message, token);
 
         using var response = await _http.SendAsync(message, cancellationToken);
+        var payload = await response.Content.ReadAsStringAsync(cancellationToken);
+        Capture(message, response, payload, body);
+
         if (!response.IsSuccessStatusCode)
         {
-            return null;
+            return [];
         }
 
-        var payload = await response.Content.ReadAsStringAsync(cancellationToken);
         var search = JsonSerializer.Deserialize<DigiKeySearchResponse>(payload, JsonOptions);
         var products = search?.Products ?? [];
-        if (products.Count == 0)
+
+        return products
+            .Select(product => product.Manufacturer)
+            .Where(manufacturer => manufacturer?.Name is not null)
+            .Select(manufacturer => new DigiKeyManufacturerCandidate(
+                manufacturer!.Id?.ToString(CultureInfo.InvariantCulture),
+                manufacturer.Name!))
+            .DistinctBy(candidate => candidate.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    /// <summary>Resolves the DigiKey manufacturer id used by the duplicate-product retry.</summary>
+    public async Task<string?> FindManufacturerIdAsync(
+        string token,
+        string mpn,
+        string? mfg,
+        CancellationToken cancellationToken)
+    {
+        var candidates = await FindManufacturersAsync(token, mpn, cancellationToken);
+        return PickManufacturer(candidates, mfg)?.Id;
+    }
+
+    private static DigiKeyManufacturerCandidate? PickManufacturer(
+        IReadOnlyList<DigiKeyManufacturerCandidate> candidates,
+        string? mfg)
+    {
+        if (candidates.Count == 0)
         {
             return null;
         }
 
-        var chosen = string.IsNullOrWhiteSpace(mfg)
-            ? products[0]
-            : products.FirstOrDefault(product =>
-                product.Manufacturer?.Name is not null
-                && product.Manufacturer.Name.Contains(mfg.Trim(), StringComparison.OrdinalIgnoreCase))
-                ?? products[0];
+        if (string.IsNullOrWhiteSpace(mfg))
+        {
+            return candidates[0];
+        }
 
-        return chosen.Manufacturer?.Id?.ToString(CultureInfo.InvariantCulture);
+        // A5: the requested manufacturer decides; the first candidate is the fallback.
+        return candidates.FirstOrDefault(candidate =>
+                candidate.Name.Contains(mfg.Trim(), StringComparison.OrdinalIgnoreCase))
+            ?? candidates[0];
     }
 
     private async Task<DigiKeyLookup> SendDetailsAsync(
@@ -136,6 +190,7 @@ public sealed class DigiKeyClient
         using var response = await _http.SendAsync(message, cancellationToken);
         var rateLimit = ReadRateLimit(response);
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        Capture(message, response, body, null);
 
         if (response.StatusCode == HttpStatusCode.TooManyRequests)
         {
@@ -168,6 +223,27 @@ public sealed class DigiKeyClient
         return product is null
             ? new DigiKeyLookup(DigiKeyLookupStatus.NotFound, null, "DigiKey returned no products", rateLimit, false)
             : new DigiKeyLookup(DigiKeyLookupStatus.Found, product, null, rateLimit, false);
+    }
+
+    /// <summary>Keeps a credential-free copy of one call for `--probe`. Never called for the token request.</summary>
+    private void Capture(HttpRequestMessage request, HttpResponseMessage response, string body, string? requestBody)
+    {
+        var requestHeaders = ProbeSanitizer.Headers(
+            ("Accept", request.Headers.Accept.ToString()),
+            ("X-DIGIKEY-Locale-Site", Options.Site),
+            ("X-DIGIKEY-Locale-Language", Options.Language),
+            ("X-DIGIKEY-Locale-Currency", Options.Currency));
+
+        var responseHeaders = ProbeSanitizer.Headers(
+            response.Headers.Concat(response.Content.Headers));
+
+        _exchanges.Add(new ProbeExchange(
+            new ProbeRequest(
+                request.Method.Method,
+                request.RequestUri?.ToString() ?? "",
+                requestHeaders,
+                string.IsNullOrWhiteSpace(requestBody) ? null : requestBody),
+            new ProbeResponse((int)response.StatusCode, responseHeaders, body)));
     }
 
     private async Task<string> GetTokenAsync(CancellationToken cancellationToken)

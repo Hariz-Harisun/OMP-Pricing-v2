@@ -24,15 +24,22 @@ dotnet run --project src/OmpPricing.App -- --file tests/samples/LT2026100009.xls
 
 The result is written to `output/<name>_<yyyyMMdd-HHmmss>.xlsx` (UTC timestamp, an existing file is
 never overwritten). Logs go to the console and to
-`src/OmpPricing.App/bin/<Configuration>/net10.0/logs/omp-pricing-<date>.log`. The match decisions are
-kept in `state/match-cache.json`.
+`src/OmpPricing.App/bin/<Configuration>/net10.0/logs/omp-pricing-<date>.log`.
+
+Match decisions are kept in `state/match-cache.json`: only Exact and PackagingVariant decisions (a
+Prefix or None decision is not worth keeping), with the time they were made, and entries older than
+30 days are ignored. `--no-cache` skips the file entirely. The `Offers` sheet lists every offer with
+its supplier, packaging, stock and provider part number, and marks the selected one with `Yes`.
 
 Options:
 
 | Option | Meaning |
 | --- | --- |
-| `--file <path.xlsx>` | parts list to process (required) |
+| `--file <path.xlsx>` | parts list to process (required for a normal run) |
 | `--packaging <code>` | restrict offers to a packaging short code; accepted now, applied in Step 3 |
+| `--no-cache` | do not read or write `state/match-cache.json` for this run |
+| `--probe <provider> <MPN>` | call one real provider for one part and save the raw JSON (see below) |
+| `--qty <n>` | quantity for `--probe` (default 1) |
 | `--export-countries` | regenerate `rules/countries.txt` from Sheet1 of the `--file` workbook |
 | `--help` | usage |
 
@@ -60,15 +67,40 @@ repository root.
 Credentials are never in `appsettings.json`, tests, logs or commits. Use user-secrets:
 
 ```
-dotnet user-secrets --project src/OmpPricing.App set Providers:DigiKey:ClientId "<value>"
-dotnet user-secrets --project src/OmpPricing.App set Providers:DigiKey:ClientSecret "<value>"
-dotnet user-secrets --project src/OmpPricing.App set Providers:DigiKey:AccountId "<value>"
-dotnet user-secrets --project src/OmpPricing.App set Providers:DigiKey:Enabled true
+dotnet user-secrets --project src/OmpPricing.App set "Providers:DigiKey:ClientId" "<value>"
+dotnet user-secrets --project src/OmpPricing.App set "Providers:DigiKey:ClientSecret" "<value>"
+dotnet user-secrets --project src/OmpPricing.App set "Providers:DigiKey:AccountId" "<value>"
+dotnet user-secrets --project src/OmpPricing.App set "Providers:DigiKey:Enabled" "true"
+
+# then verify the probe path (one real lookup; see "Live probe" below)
+dotnet run --project src/OmpPricing.App -- --probe DigiKey BLM18HE601SN1 --qty 400
 ```
 
 or environment variables (`OMP_Providers__DigiKey__ClientId`, `…__ClientSecret`, `…__AccountId`,
 `OMP_Providers__DigiKey__Enabled=true`). Enabling DigiKey without these stops the run at startup with
 an error that names the missing settings and never prints their values.
+
+## Live probe (verification against the real API)
+
+`--probe` makes exactly one lookup against a real provider and writes down what came back, so the
+field names and shapes in `AGENTS.md` A5 can be checked against the live API instead of guesses.
+
+```
+dotnet run --project src/OmpPricing.App -- --probe DigiKey BLM18HE601SN1 --qty 400
+```
+
+It prints the normalized offers — provider part number, packaging, MOQ, SPQ, stock, lead weeks,
+price breaks, RoHS/REACH, marketplace, tariff, NCNR, EOL, reel fee — and the HTTP calls it made. The
+raw record goes to `state/probe/<provider>_<MPN>_<yyyyMMdd-HHmmss>.json` with the request URLs, the
+request headers that are not credentials (the `X-DIGIKEY-Locale-*` ones), the full response headers
+(including `X-RateLimit-Limit` and `X-RateLimit-Remaining`) and the untouched response body.
+
+The file never contains a token, client id, account id, client secret or cookie: the token request is
+not recorded at all, and any header whose name looks like a credential is dropped from both sides.
+
+Exit codes: `0` Found, `2` NotFound / Ambiguous / Throttled / provider not enabled, `1` Error. The
+probe needs the provider enabled and its credentials set (below); it does not touch the workbook, the
+`Offers` sheet or the match cache.
 
 ## Build and test
 

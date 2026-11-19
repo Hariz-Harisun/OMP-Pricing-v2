@@ -17,11 +17,20 @@ internal sealed class StubHttpMessageHandler : HttpMessageHandler
 {
     private readonly Queue<Func<HttpRequestMessage, HttpResponseMessage>> _responders = new();
 
+    private Func<HttpRequestMessage, HttpResponseMessage>? _fallback;
+
     public List<RecordedRequest> Requests { get; } = [];
 
     public StubHttpMessageHandler Respond(Func<HttpRequestMessage, HttpResponseMessage> responder)
     {
         _responders.Enqueue(responder);
+        return this;
+    }
+
+    /// <summary>Answers every request the queue does not cover, for runs that make many calls.</summary>
+    public StubHttpMessageHandler RespondAny(Func<HttpRequestMessage, HttpResponseMessage> responder)
+    {
+        _fallback = responder;
         return this;
     }
 
@@ -81,11 +90,16 @@ internal sealed class StubHttpMessageHandler : HttpMessageHandler
             headers,
             body));
 
-        if (_responders.Count == 0)
+        if (_responders.Count > 0)
         {
-            throw new InvalidOperationException("No stub response queued for " + request.RequestUri);
+            return _responders.Dequeue()(request);
         }
 
-        return _responders.Dequeue()(request);
+        if (_fallback is not null)
+        {
+            return _fallback(request);
+        }
+
+        throw new InvalidOperationException("No stub response queued for " + request.RequestUri);
     }
 }

@@ -8,26 +8,45 @@ public sealed class CommandLineOptions
 
     public bool ExportCountries { get; init; }
 
+    public string? ProbeProvider { get; init; }
+
+    public string? ProbeMpn { get; init; }
+
+    public int Qty { get; init; } = 1;
+
+    public bool NoCache { get; init; }
+
     public bool Help { get; init; }
 }
 
-/// <summary>Parse of OmpPricing.App arguments. No library, no magic: two options and one dev switch.</summary>
+/// <summary>Parse of OmpPricing.App arguments. No library, no magic: a few options and one dev switch.</summary>
 public static class CommandLine
 {
     public const string Usage = """
-        Usage: OmpPricing.App --file <path.xlsx> [--packaging CT] [--export-countries]
+        Usage: OmpPricing.App --file <path.xlsx> [--packaging CT] [--no-cache]
+               OmpPricing.App --probe <provider> <MPN> [--qty N]
+               OmpPricing.App --file <path.xlsx> --export-countries
 
-          --file <path.xlsx>   parts list to process; the result is written to the output folder
-          --packaging <code>   restrict offers to a packaging short code (applied in Step 3)
-          --export-countries   regenerate rules/countries.txt from Sheet1 of the --file workbook
-          --help               show this text
+          --file <path.xlsx>      parts list to process; the result is written to the output folder
+          --packaging <code>      restrict offers to a packaging short code (applied in Step 3)
+          --no-cache              do not read or write state/match-cache.json for this run
+          --probe <provider> <MPN>
+                                  call one real provider for one part, print the normalized offers
+                                  and save the raw JSON to state/probe/ (credentials removed)
+          --qty <n>               quantity for --probe (default 1)
+          --export-countries      regenerate rules/countries.txt from Sheet1 of the --file workbook
+          --help                  show this text
         """;
 
     public static CommandLineOptions Parse(string[] args)
     {
         string? file = null;
         string? packaging = null;
+        string? probeProvider = null;
+        string? probeMpn = null;
         var exportCountries = false;
+        var noCache = false;
+        var qty = 1;
         var help = false;
 
         for (var index = 0; index < args.Length; index++)
@@ -41,6 +60,16 @@ public static class CommandLine
                     break;
                 case "--packaging":
                     packaging = RequireValue(args, ref index, argument);
+                    break;
+                case "--probe":
+                    probeProvider = RequireValue(args, ref index, argument);
+                    probeMpn = RequireValue(args, ref index, argument);
+                    break;
+                case "--qty":
+                    qty = RequireQty(RequireValue(args, ref index, argument));
+                    break;
+                case "--no-cache":
+                    noCache = true;
                     break;
                 case "--export-countries":
                     exportCountries = true;
@@ -59,6 +88,10 @@ public static class CommandLine
             File = file,
             Packaging = packaging,
             ExportCountries = exportCountries,
+            ProbeProvider = probeProvider,
+            ProbeMpn = probeMpn,
+            Qty = qty,
+            NoCache = noCache,
             Help = help,
         };
     }
@@ -72,5 +105,16 @@ public static class CommandLine
 
         index++;
         return args[index];
+    }
+
+    private static int RequireQty(string value)
+    {
+        if (!int.TryParse(value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var qty)
+            || qty <= 0)
+        {
+            throw new ArgumentException("--qty must be a positive whole number");
+        }
+
+        return qty;
     }
 }

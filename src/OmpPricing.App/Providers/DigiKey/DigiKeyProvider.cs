@@ -4,7 +4,7 @@ using Serilog;
 namespace OmpPricing.App.Providers.DigiKey;
 
 /// <summary>DigiKey as a price provider: throttle, one product details call, map to offers.</summary>
-public sealed class DigiKeyProvider : IPriceProvider
+public sealed class DigiKeyProvider : IPriceProvider, IProbeSource
 {
     public const string ProviderName = "DigiKey";
 
@@ -28,6 +28,11 @@ public sealed class DigiKeyProvider : IPriceProvider
     }
 
     public string Name => ProviderName;
+
+    /// <summary>The raw exchanges of the last lookups, for `--probe`.</summary>
+    public IReadOnlyList<ProbeExchange> Exchanges => _client.Exchanges;
+
+    public void ResetExchanges() => _client.ResetExchanges();
 
     /// <summary>The rate-limit headers of the last call, kept for logging and diagnostics.</summary>
     public RateLimitInfo? LastRateLimit { get; private set; }

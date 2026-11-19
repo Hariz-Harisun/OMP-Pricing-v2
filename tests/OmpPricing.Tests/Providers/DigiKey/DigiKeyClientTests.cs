@@ -121,7 +121,7 @@ public sealed class DigiKeyClientTests
     }
 
     [Fact]
-    public async Task Duplicate_products_without_a_resolvable_manufacturer_is_reported_as_not_found()
+    public async Task Duplicate_products_without_a_resolvable_manufacturer_is_ambiguous()
     {
         var (client, handler) = DigiKeyTestSetup.CreateClient();
         handler
@@ -133,8 +133,10 @@ public sealed class DigiKeyClientTests
             DigiKeyTestSetup.Query("BAT54CW,115", "NXP"),
             Token);
 
-        Assert.Equal(DigiKeyLookupStatus.NotFound, result.Status);
+        // Decision D8: an unresolved duplicate stays Ambiguous and the candidates are reported.
+        Assert.Equal(DigiKeyLookupStatus.DuplicateProducts, result.Status);
         Assert.Contains("Duplicate Products found", result.Message);
+        Assert.Contains("Candidates:", result.Message);
     }
 
     [Fact]

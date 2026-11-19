@@ -99,7 +99,7 @@ public static class WorkbookWriter
         string[] headers =
         [
             "Line", "Status", "Selected", "Supplier", "MFG", "MPN", "Currency", "Unit Price",
-            "MOQ", "SPQ", "Lead time (WKS)", "Packaging", "Stock", "Notes",
+            "MOQ", "SPQ", "Lead time (WKS)", "Packaging", "Stock", "Notes", "Provider part",
         ];
 
         for (var index = 0; index < headers.Length; index++)
@@ -164,6 +164,7 @@ public static class WorkbookWriter
                 }
 
                 sheet.Cell(row, 14).Value = line.Remarks ?? "";
+                sheet.Cell(row, 15).Value = offer.ProviderPartNumber ?? "";
                 row++;
             }
         }
