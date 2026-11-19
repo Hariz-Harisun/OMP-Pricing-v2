@@ -103,6 +103,8 @@ untouched response body. The token request is never recorded, and every header w
 sides. Nothing is redacted from the body. The probe does not write a workbook and does not touch the
 match cache. The owner runs it on their own PC; the agent never calls the live API.
 
+**Secrets rule:** The agent may run real probes using keys from user-secrets (`dotnet user-secrets`) or environment variables. No key, token, or account id value may appear in any file, log, or report. Template scripts use `YOUR_CLIENT_ID` placeholders.
+
 ## D8. An unresolved duplicate stays Ambiguous and names the candidates (accepted, Step 2)
 
 When DigiKey answers `Duplicate Products found` and the retry with `manufacturerId` does not resolve
